@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamar Pixel FAISS</title>
+    <!-- Mengambil font bergaya 8-bit / Pixel dari Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Pengaturan Dasar Kamar */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a2e; /* Warna tembok malam hari */
+            font-family: 'Press Start 2P', cursive;
+            user-select: none;
+        }
+
+        /* Lantai Kamar */
+        .floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 25%;
+            background-color: #0f3460;
+            border-top: 6px solid #16213e;
+        }
+
+        /* Rak Buku di Dinding */
+        .shelf {
+            position: absolute;
+            top: 25%;
+            left: 35%;
+            width: 150px;
+            height: 10px;
+            background: #5c3a21;
+            border: 4px solid #3d2616;
+            box-shadow: 0px 10px 0px rgba(0,0,0,0.3);
+        }
+        
+        .book {
+            position: absolute;
+            bottom: 10px;
+            border: 3px solid #111;
+        }
+        .book1 { left: 10px; width: 25px; height: 45px; background: #e94560; transform: rotate(-15deg); transform-origin: bottom left;}
+        .book2 { left: 50px; width: 20px; height: 40px; background: #0f3460; }
+        .book3 { left: 75px; width: 30px; height: 50px; background: #f2a365; }
+
+        /* Jam Dinding Bergerak */
+        .clock {
+            position: absolute;
+            top: 15%;
+            right: 25%;
+            width: 70px;
+            height: 70px;
+            background: #ecf0f1;
+            border: 6px solid #2c3e50;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 8px 0px rgba(0,0,0,0.3);
+        }
+        .clock-center {
+            width: 8px;
+            height: 8px;
+            background: #c0392b;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .hand {
+            position: absolute;
+            width: 4px;
+            height: 30px;
+            background: #2c3e50;
+            bottom: 35px;
+            transform-origin: bottom center;
+            animation: clockTick 60s infinite steps(60); /* Jarum berdetak */
+        }
+
+        /* Meja dan Komputer */
+        .desk {
+            position: absolute;
+            bottom: 20%;
+            right: 10%;
+            width: 180px;
+            height: 15px;
+            background: #8b5a2b;
+            border: 4px solid #5c3a21;
+        }
+        .desk-leg {
+            position: absolute;
+            top: 15px;
+            width: 15px;
+            height: 100px;
+            background: #5c3a21;
+            border: 2px solid #3d2616;
+        }
+        .desk-leg.left { left: 15px; }
+        .desk-leg.right { right: 15px; }
+        
+        .computer {
+            position: absolute;
+            bottom: 15px;
+            left: 40px;
+            width: 90px;
+            height: 70px;
+            background: #bdc3c7;
+            border: 5px solid #7f8c8d;
+            border-radius: 4px;
+        }
+        .screen {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 70px;
+            height: 50px;
+            background: #111;
+            overflow: hidden;
+            border: 2px solid #222;
+        }
+        .code-line {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 40px;
+            height: 4px;
+            background: #00ff00;
+            animation: typing 2s infinite steps(4);
+        }
+        .screen-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 255, 0, 0.1);
+            animation: flicker 3s infinite;
+        }
+        .pc-stand {
+            position: absolute;
+            bottom: -15px;
+            left: 35px;
+            width: 20px;
+            height: 15px;
+            background: #95a5a6;
+        }
+
+        /* Kasur */
+        .bed {
+            position: absolute;
+            bottom: 15%;
+            left: 5%;
+            width: 400px;
+            height: 130px;
+            background: #34495e;
+            border: 6px solid #2c3e50;
+            border-radius: 8px;
+            box-shadow: 15px 15px 0px rgba(0,0,0,0.4);
+        }
+        .pillow {
+            position: absolute;
+            left: 20px;
+            top: -20px;
+            width: 90px;
+            height: 60px;
+            background: #ecf0f1;
+            border: 5px solid #bdc3c7;
+            border-radius: 10px;
+        }
+        
+        /* Karakter Rebahan (Tanpa Gambar/Emoji) */
+        .person {
+            position: absolute;
+            left: 40px;
+            top: -30px;
+            display: flex;
+            align-items: center;
+        }
+        .head {
+            width: 60px;
+            height: 60px;
+            background: #f1c27d;
+            border: 5px solid #d49a5b;
+            border-radius: 8px;
+            position: relative;
+        }
+        .hair {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 70px;
+            height: 25px;
+            background: #2c3e50;
+            border-radius: 5px 5px 0 0;
+        }
+        .body {
+            width: 180px;
+            height: 50px;
+            background: #e74c3c;
+            border: 5px solid #c0392b;
+            margin-left: -15px;
+            border-radius: 5px;
+        }
+
+        /* Tangan dan HP */
+        .arm {
+            position: absolute;
+            left: 80px;
+            top: 20px;
+            width: 70px;
+            height: 18px;
+            background: #f1c27d;
+            border: 4px solid #d49a5b;
+            border-radius: 4px;
+            transform-origin: left center;
+            /* Animasi lengan bergerak santai ke atas ke bawah */
+            animation: armMove 2.5s infinite ease-in-out alternate; 
+        }
+        .phone {
+            position: absolute;
+            right: -15px;
+            top: -25px;
+            width: 20px;
+            height: 35px;
+            background: #ecf0f1;
+            border: 4px solid #222;
+            border-radius: 4px;
+            /* Animasi HP bersinar */
+            animation: phoneGlow 2s infinite alternate;
+        }
+
+        /* Selimut */
+        .blanket {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 250px;
+            height: 110px;
+            background: #2980b9;
+            border-left: 6px solid #1f618d;
+            border-top-left-radius: 30px;
+        }
+
+        /* Efek Tidur Melayang (Zzz) */
+        .zzz-container {
+            position: absolute;
+            left: 30px;
+            top: -80px;
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 2px 2px 0px #000;
+        }
+        .z-letter {
+            position: absolute;
+            opacity: 0;
+            animation: floatZ 3s infinite linear;
+        }
+        .z1 { left: 0px; top: 30px; font-size: 24px; animation-delay: 0s; }
+        .z2 { left: 20px; top: 15px; font-size: 18px; animation-delay: 1s; }
+        .z3 { left: 40px; top: 0px; font-size: 14px; animation-delay: 2s; }
+
+        /* Tanda Tangan */
+        .signature {
+            position: absolute;
+            bottom: 25px;
+            right: 30px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #000;
+            z-index: 10;
+        }
+
+        /* Tombol Musik Bergaya Retro */
+        .music-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            padding: 15px 25px;
+            background: #f39c12;
+            color: #fff;
+            border: 4px solid #222;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px #000;
+            transition: 0.1s;
+            z-index: 10;
+        }
+        .music-btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        /* === DAFTAR ANIMASI === */
+        @keyframes armMove {
+            0% { transform: rotate(-10deg); }
+            100% { transform: rotate(5deg); }
+        }
+        @keyframes phoneGlow {
+            0% { box-shadow: -2px -2px 10px rgba(52, 152, 219, 0.2); }
+            100% { box-shadow: -5px -5px 25px rgba(52, 152, 219, 0.9); }
+        }
+        @keyframes clockTick {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes typing {
+            0% { width: 0px; }
+            50% { width: 40px; }
+            100% { width: 0px; }
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes floatZ {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Area Lantai -->
+    <div class="floor"></div>
+
+    <!-- Area Rak Buku -->
+    <div class="shelf">
+        <div class="book book1"></div>
+        <div class="book book2"></div>
+        <div class="book book3"></div>
+    </div>
+
+    <!-- Area Jam Dinding -->
+    <div class="clock">
+        <div class="hand"></div>
+        <div class="clock-center"></div>
+    </div>
+
+    <!-- Area Meja Komputer -->
+    <div class="desk">
+        <div class="desk-leg left"></div>
+        <div class="desk-leg right"></div>
+        <div class="pc-stand"></div>
+        <div class="computer">
+            <div class="screen">
+                <div class="code-line"></div>
+                <div class="screen-glow"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Area Kasur dan Karakter -->
+    <div class="bed">
+        <div class="pillow"></div>
+        
+        <div class="person">
+            <!-- Tulisan Zzz yang melayang -->
+            <div class="zzz-container">
+                <div class="z-letter z1">Z</div>
+                <div class="z-letter z2">z</div>
+                <div class="z-letter z3">z</div>
+            </div>
+
+            <div class="head">
+                <div class="hair"></div>
+            </div>
+            <div class="body"></div>
+            
+            <!-- Lengan yang bergerak memegang HP -->
+            <div class="arm">
+                <div class="phone"></div>
+            </div>
+        </div>
+
+        <div class="blanket"></div>
+    </div>
+
+    <!-- Teks Desain -->
+    <div class="signature">desaign FAISS</div>
+
+    <!-- Tombol Audio -->
+    <button class="music-btn" id="playBtn">▶ PUTAR MUSIK</button>
+    
+    <!-- File Audio Lofi Relax (Bebas Hak Cipta) -->
+    <audio id="bgmMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-sleepy-cat-135.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Script JavaScript untuk memutar musik -->
+    <script>
+        const btn = document.getElementById('playBtn');
+        const music = document.getElementById('bgmMusic');
+
+        btn.addEventListener('click', function() {
+            if (music.paused) {
+                music.play();
+                btn.innerHTML = "⏸ JEDA MUSIK";
+                btn.style.background = "#e74c3c";
+            } else {
+                music.pause();
+                btn.innerHTML = "▶ PUTAR MUSIK";
+                btn.style.background = "#f39c12";
+            }
+        });
+    </script>
+
+</body>
+</html>
+
